@@ -91,7 +91,8 @@ public enum BossTab
 	// Slayer Bosses
 	SKOTIZO("Skotizo", ItemID.SKOTIZOPET, "Slayer", LootRecordType.NPC),
 	GROTESQUE_GUARDIANS("Grotesque Guardians", ItemID.DAWNPET, "Slayer", LootRecordType.NPC, "Dusk"),
-	ABYSSAL_SIRE("Abyssal Sire", ItemID.ABYSSALSIRE_PET, "Slayer", LootRecordType.NPC),
+	ABYSSAL_SIRE("Abyssal Sire", ItemID.ABYSSALSIRE_PET, "Slayer", LootRecordType.NPC,
+			ImmutableSet.of("unsired"), LootRecordType.EVENT),
 	KRAKEN("Kraken", ItemID.KRAKENPET, "Slayer", LootRecordType.NPC),
 	CERBERUS("Cerberus", ItemID.HELL_PET, "Slayer", LootRecordType.NPC),
 	THERMONUCLEAR_SMOKE_DEVIL("Thermonuclear smoke devil", ItemID.SMOKEPET, "Slayer", LootRecordType.NPC),
@@ -127,7 +128,7 @@ public enum BossTab
 	CLUE_SCROLL_MASTER("Clue Scroll (Master)", ItemID.TRAIL_CLUE_MASTER, "Clue Scrolls", LootRecordType.EVENT),
 
 	// Skilling
-	WINTERTODT("Wintertodt", ItemID.PHOENIXPET, "Skilling", LootRecordType.EVENT, "Supply crate (Wintertodt)"),
+	WINTERTODT("Wintertodt", ItemID.PHOENIXPET, "Skilling", LootRecordType.EVENT, "Supply crate (Wintertodt)", "Reward cart (Wintertodt)"),
 	TEMPOROSS("Tempoross", ItemID.TEMPOROSSPET, "Skilling", LootRecordType.EVENT,
 		ImmutableSet.of("Casket (Tempoross)"), "Reward pool (Tempoross)"),
 	ZALCANO("Zalcano", ItemID.ZALCANOPET, "Skilling", LootRecordType.NPC),

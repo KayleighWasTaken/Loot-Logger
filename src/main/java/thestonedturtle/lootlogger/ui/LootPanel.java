@@ -322,6 +322,9 @@ class LootPanel extends JPanel
 		final String killsLoggedText = lootLog.getName().equalsIgnoreCase(LootLoggerPlugin.SESSION_NAME) ? TOTAL_KILLS : KILLS_LOGGED;
 		killsLoggedPanel.updatePanel(killsLoggedText, killsLogged);
 		killsLoggedPanel.setVisible(killsLogged > 0);
+		if (totalValue > 0) {
+			killsLoggedPanel.setToolTipText(QuantityFormatter.formatNumber(totalValue / killsLogged) + " gp per kill");
+		}
 	}
 
 	void playback()

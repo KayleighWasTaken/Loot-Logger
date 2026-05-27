@@ -37,6 +37,8 @@ public class LTItemEntry {
 	public long price;
 	// Rather than serializing HA price and change the output format at all, mark transient and fetch it on deserialisation.
 	public final transient int haPrice;
+	// Transient for record format compatibility due to being cheap to construct at runtime anyway.
+	public transient long historicTotalPrice;
 
 	public long getPriceByType(ItemValueTypes valueType)
 	{

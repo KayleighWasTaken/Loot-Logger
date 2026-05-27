@@ -276,7 +276,8 @@ public class LootLoggerPlugin extends Plugin
 		final ItemComposition c = itemManager.getItemComposition(id);
 		final int realId = c.getNote() == -1 ? c.getId() : c.getLinkedNoteId();
 		final int price = itemManager.getItemPrice(realId);
-		return new LTItemEntry(c.getName(), id, qty, price, c.getHaPrice());
+		final long totalPrice = (long) price * qty;
+		return new LTItemEntry(c.getName(), id, qty, price, c.getHaPrice(), totalPrice);
 	}
 
 	private void addRecord(final LTRecord record)
@@ -495,7 +496,7 @@ public class LootLoggerPlugin extends Plugin
 		{
 			Collection<LTRecord> data = getDataByName(LootRecordType.NPC, BossTab.ABYSSAL_SIRE.getName());
 			ItemComposition c = itemManager.getItemComposition(itemID);
-			LTItemEntry itemEntry = new LTItemEntry(c.getName(), itemID, 1, 0, c.getHaPrice());
+			LTItemEntry itemEntry = new LTItemEntry(c.getName(), itemID, 1, 0, c.getHaPrice(), 0);
 
 			log.debug("Received Unsired item: {}", c.getName());
 

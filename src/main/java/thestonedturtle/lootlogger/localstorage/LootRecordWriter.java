@@ -94,7 +94,8 @@ public class LootRecordWriter
 			int quantity = jsonObject.get("quantity").getAsInt();
 			long price = jsonObject.get("price").getAsLong();
 			int haPrice = haPrices.getOrDefault(id, 0);
-			return new LTItemEntry(name, id, quantity, price, haPrice);
+			long totalPrice = price * quantity;
+			return new LTItemEntry(name, id, quantity, price, haPrice, totalPrice);
 		}
 	}
 

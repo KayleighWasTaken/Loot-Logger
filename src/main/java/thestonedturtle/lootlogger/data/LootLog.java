@@ -43,7 +43,6 @@ import lombok.Getter;
 import lombok.Setter;
 import net.runelite.api.gameval.ItemID;
 import net.runelite.http.api.loottracker.LootRecordType;
-import thestonedturtle.lootlogger.ItemValueTypes;
 import thestonedturtle.lootlogger.LootLoggerConfig;
 import thestonedturtle.lootlogger.localstorage.LTItemEntry;
 import thestonedturtle.lootlogger.localstorage.LTRecord;
@@ -94,12 +93,6 @@ public class LootLog
 		}
 
 		final Collection<UniqueItem> unsorted = UniqueItem.getUniquesForBoss(name);
-		if (unsorted == null)
-		{
-			uniques = new ArrayList<>();
-			return;
-		}
-
 		uniques = unsorted.stream().sorted(Comparator.comparingInt(UniqueItem::getPosition)).collect(Collectors.toList());
 	}
 
@@ -122,17 +115,17 @@ public class LootLog
 	{
 		final String itemNameLowercased = item.getName().toLowerCase();
 
-		ClueType type = null;
+		ClueType clueType = null;
 		if (itemNameLowercased.startsWith("clue scroll"))
 		{
-			type = ClueType.SCROLL;
+			clueType = ClueType.SCROLL;
 		}
 		else if(itemNameLowercased.startsWith("casket "))
 		{
-			type = ClueType.CASKET;
+			clueType = ClueType.CASKET;
 		}
 
-		if (type != null)
+		if (clueType != null)
 		{
 			Matcher m = CLUE_ITEM_TYPE_PATTERN.matcher(item.getName());
 			if (m.find())
@@ -143,20 +136,20 @@ public class LootLog
 				{
 					// Beginner and Master clues only have 1 ID
 					case "easy":
-						id = type.equals(ClueType.SCROLL) ? ItemID.TRAIL_CLUE_EASY_SIMPLE001 : ItemID.TRAIL_CLUE_EASY_MAP001_CASKET;
+						id = clueType.equals(ClueType.SCROLL) ? ItemID.TRAIL_CLUE_EASY_SIMPLE001 : ItemID.TRAIL_CLUE_EASY_MAP001_CASKET;
 						break;
 					case "medium":
-						id = type.equals(ClueType.SCROLL) ? ItemID.TRAIL_CLUE_MEDIUM_SEXTANT001 : ItemID.TRAIL_CLUE_MEDIUM_SEXTANT001_CASKET;
+						id = clueType.equals(ClueType.SCROLL) ? ItemID.TRAIL_CLUE_MEDIUM_SEXTANT001 : ItemID.TRAIL_CLUE_MEDIUM_SEXTANT001_CASKET;
 						break;
 					case "hard":
-						id = type.equals(ClueType.SCROLL) ? ItemID.TRAIL_CLUE_HARD_MAP001 : ItemID.TRAIL_CLUE_HARD_SEXTANT001_CASKET;
+						id = clueType.equals(ClueType.SCROLL) ? ItemID.TRAIL_CLUE_HARD_MAP001 : ItemID.TRAIL_CLUE_HARD_SEXTANT001_CASKET;
 						break;
 					case "elite":
-						id = type.equals(ClueType.SCROLL) ? ItemID.TRAIL_ELITE_EMOTE_EXP1 : ItemID.TRAIL_ELITE_EMOTE_CASKET;
+						id = clueType.equals(ClueType.SCROLL) ? ItemID.TRAIL_ELITE_EMOTE_EXP1 : ItemID.TRAIL_ELITE_EMOTE_CASKET;
 						break;
 				}
 
-				item = new LTItemEntry(item.getName(), id, item.getQuantity(), item.getPrice(), item.getHaPrice());
+				item = new LTItemEntry(item.getName(), id, item.getQuantity(), item.getPrice(), item.getHaPrice(), item.getQuantity() * item.getPrice());
 			}
 		}
 
@@ -166,11 +159,12 @@ public class LootLog
 			// Use the most recent price
 			oldEntry.setPrice(item.getPrice());
 			oldEntry.setQuantity(oldEntry.getQuantity() + item.getQuantity());
+			oldEntry.setHistoricTotalPrice(oldEntry.historicTotalPrice + item.getHistoricTotalPrice());
 		}
 		else
 		{
 			// Create a new instance for consolidated records
-			consolidated.put(item.getId(), new LTItemEntry(item.getName(), item.getId(), item.getQuantity(), item.getPrice(), item.getHaPrice()));
+			consolidated.put(item.getId(), new LTItemEntry(item.getName(), item.getId(), item.getQuantity(), item.getPrice(), item.getHaPrice(), item.getQuantity() * item.getPrice()));
 		}
 	}
 

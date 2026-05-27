@@ -46,7 +46,7 @@ public interface LootLoggerConfig extends Config
 	)
 	default ItemSortTypes itemSortType()
 	{
-		return ItemSortTypes.VALUE;
+		return ItemSortTypes.TOTAL_VALUE;
 	}
 
 	@ConfigItem(

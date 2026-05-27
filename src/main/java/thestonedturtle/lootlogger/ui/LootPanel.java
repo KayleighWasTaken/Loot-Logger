@@ -409,7 +409,7 @@ class LootPanel extends JPanel
 			{
 				case ITEM_ID:
 					return o1.getId() - o2.getId();
-				case PRICE:
+				case INDIVIDUAL_VALUE:
 					long p1 = o1.getPriceByType(valueType);
 					long p2 = o2.getPriceByType(valueType);
 
@@ -418,7 +418,7 @@ class LootPanel extends JPanel
 						return p1 > p2 ? -1 : 1;
 					}
 					break;
-				case VALUE:
+				case TOTAL_VALUE:
 					long v1 = o1.getTotalByType(valueType);
 					long v2 = o2.getTotalByType(valueType);
 

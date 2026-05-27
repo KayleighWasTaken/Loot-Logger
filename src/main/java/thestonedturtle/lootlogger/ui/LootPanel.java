@@ -59,6 +59,9 @@ class LootPanel extends JPanel
 	private static final String CURRENT_KC = "Current Killcount:";
 	private static final String KILLS_LOGGED = "Kills Logged:";
 	private static final String TOTAL_VALUE = "Total Value:";
+	private static final String TOTAL_VALUE_LATEST = "Total Value (Latest):";
+	private static final String TOTAL_VALUE_HISTORIC = "Total Value (Historic):";
+	private static final String TOTAL_VALUE_HA = "Total Value (HA):";
 	private static final String TOTAL_KILLS = "Total Kills:";
 
 	private final LootLog lootLog;
@@ -185,9 +188,7 @@ class LootPanel extends JPanel
 
 		if (totalValue > 0)
 		{
-			totalValuePanel.updatePanel(TOTAL_VALUE, totalValue);
-			totalValuePanel.setVisible(true);
-			totalValuePanel.setToolTipText(buildTotalValueTooltip());
+			updateTotalValuePanel(totalValue);
 			killsLoggedPanel.setToolTipText(QuantityFormatter.formatNumber(totalValue / killsLogged) + " gp per kill");
 		}
 
@@ -305,9 +306,7 @@ class LootPanel extends JPanel
 
 		// Update Total Value
 		final long totalValue = lootLog.getLootValue();
-		totalValuePanel.updatePanel(TOTAL_VALUE, totalValue);
-		totalValuePanel.setVisible(totalValue > 0);
-		totalValuePanel.setToolTipText(buildTotalValueTooltip());
+		updateTotalValuePanel(totalValue);
 
 		// Update Kills Logged
 		int killsLogged = lootLog.getRecords().size();
@@ -443,6 +442,33 @@ class LootPanel extends JPanel
 			// Default to alphabetical
 			return o1.getName().compareTo(o2.getName());
 		};
+	}
+
+	private void updateTotalValuePanel(long totalValue)
+	{
+		if (totalValue > 0)
+		{
+			totalValuePanel.setVisible(true);
+			totalValuePanel.setToolTipText(buildTotalValueTooltip());
+			switch (config.valueType()) {
+				case HIGH_ALCHEMY:
+					totalValuePanel.updatePanel(TOTAL_VALUE_HA, totalValue);
+					break;
+				case GRAND_EXCHANGE_HISTORIC:
+					totalValuePanel.updatePanel(TOTAL_VALUE_HISTORIC, totalValue);
+					break;
+				case GRAND_EXCHANGE_LATEST:
+					totalValuePanel.updatePanel(TOTAL_VALUE_LATEST, totalValue);
+					break;
+				default:
+					totalValuePanel.updatePanel(TOTAL_VALUE, totalValue);
+
+			}
+		}
+		else
+		{
+			totalValuePanel.setVisible(false);
+		}
 	}
 
 	private String buildTotalValueTooltip() {

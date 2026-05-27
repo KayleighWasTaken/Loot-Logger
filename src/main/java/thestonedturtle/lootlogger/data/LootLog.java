@@ -43,6 +43,7 @@ import lombok.Getter;
 import lombok.Setter;
 import net.runelite.api.gameval.ItemID;
 import net.runelite.http.api.loottracker.LootRecordType;
+import thestonedturtle.lootlogger.ItemValueTypes;
 import thestonedturtle.lootlogger.LootLoggerConfig;
 import thestonedturtle.lootlogger.localstorage.LTItemEntry;
 import thestonedturtle.lootlogger.localstorage.LTRecord;
@@ -182,11 +183,11 @@ public class LootLog
 		return null;
 	}
 
-	public long getLootValue(boolean includeMinions)
+	public long getLootValue(boolean includeMinions, ItemValueTypes valueType)
 	{
 		long value = getConsolidated()
 			.values().stream()
-			.mapToLong(e -> e.getTotalByType(config.valueType()))
+			.mapToLong(e -> e.getTotalByType(valueType))
 			.sum();
 
 		if (includeMinions)
@@ -195,12 +196,27 @@ public class LootLog
 			{
 				value += minionLog.getConsolidated()
 					.values().stream()
-					.mapToLong(e -> e.getTotalByType(config.valueType()))
+					.mapToLong(e -> e.getTotalByType(valueType))
 					.sum();
 			}
 		}
 
 		return value;
+	}
+
+	public long getLootValue(boolean includeMinions)
+	{
+		return getLootValue(includeMinions, config.valueType());
+	}
+
+	public long getLootValue(ItemValueTypes valueType)
+	{
+		return getLootValue(config.includeMinions(), valueType);
+	}
+
+	public long getLootValue()
+	{
+		return getLootValue(config.includeMinions(), config.valueType());
 	}
 
 	// Loop over all UniqueItems and check how many the player has received as a drop for each

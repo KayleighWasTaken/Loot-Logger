@@ -187,6 +187,7 @@ class LootPanel extends JPanel
 		{
 			totalValuePanel.updatePanel(TOTAL_VALUE, totalValue);
 			totalValuePanel.setVisible(true);
+			totalValuePanel.setToolTipText(buildTotalValueTooltip());
 			killsLoggedPanel.setToolTipText(QuantityFormatter.formatNumber(totalValue / killsLogged) + " gp per kill");
 		}
 
@@ -303,9 +304,10 @@ class LootPanel extends JPanel
 		}
 
 		// Update Total Value
-		final long totalValue = lootLog.getLootValue(config.includeMinions());
+		final long totalValue = lootLog.getLootValue();
 		totalValuePanel.updatePanel(TOTAL_VALUE, totalValue);
 		totalValuePanel.setVisible(totalValue > 0);
+		totalValuePanel.setToolTipText(buildTotalValueTooltip());
 
 		// Update Kills Logged
 		int killsLogged = lootLog.getRecords().size();
@@ -438,5 +440,15 @@ class LootPanel extends JPanel
 			// Default to alphabetical
 			return o1.getName().compareTo(o2.getName());
 		};
+	}
+
+	private String buildTotalValueTooltip() {
+		final long latestTotal = lootLog.getLootValue(ItemValueTypes.GRAND_EXCHANGE_LATEST);
+		final long historicTotal = lootLog.getLootValue(ItemValueTypes.GRAND_EXCHANGE_HISTORIC);
+		final long haTotal = lootLog.getLootValue(ItemValueTypes.HIGH_ALCHEMY);
+
+		return "<html>" + "Total (Latest): " + QuantityFormatter.quantityToStackSize(latestTotal)
+			+ "<br/>Total (Historic): " + QuantityFormatter.quantityToStackSize(historicTotal)
+			+ "<br/>Total (HA): " + QuantityFormatter.quantityToStackSize(haTotal) + "</html>";
 	}
 }

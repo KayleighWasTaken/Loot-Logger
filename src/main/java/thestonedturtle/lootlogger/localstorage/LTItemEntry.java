@@ -43,7 +43,14 @@ public class LTItemEntry {
 
 	public long getPriceByType(ItemValueTypes valueType)
 	{
-		return valueType == ItemValueTypes.HIGH_ALCHEMY ? (long) this.haPrice : this.price;
+		switch (valueType) {
+			case HIGH_ALCHEMY:
+				return haPrice;
+			case GRAND_EXCHANGE_HISTORIC:
+				return historicTotalPrice / quantity;
+			default:
+				return price;
+		}
 	}
 
 	public long getTotalByType(ItemValueTypes valueType)

@@ -413,33 +413,6 @@ class LootPanel extends JPanel
 		};
 	}
 
-	private void updateTotalValuePanel(long totalValue)
-	{
-		if (totalValue > 0)
-		{
-			totalValuePanel.setVisible(true);
-			totalValuePanel.setToolTipText(buildTotalValueTooltip());
-			switch (config.valueType()) {
-				case HIGH_ALCHEMY:
-					totalValuePanel.updatePanel(TOTAL_VALUE_HA, totalValue);
-					break;
-				case GRAND_EXCHANGE_HISTORIC:
-					totalValuePanel.updatePanel(TOTAL_VALUE_HISTORIC, totalValue);
-					break;
-				case GRAND_EXCHANGE_LATEST:
-					totalValuePanel.updatePanel(TOTAL_VALUE_LATEST, totalValue);
-					break;
-				default:
-					totalValuePanel.updatePanel(TOTAL_VALUE, totalValue);
-
-			}
-		}
-		else
-		{
-			totalValuePanel.setVisible(false);
-		}
-	}
-
 	private void updatePanels(long totalValue, int killsLogged, int currentKillcount, boolean isCurrentSessionLog)
 	{
 		if (totalValue > 0)

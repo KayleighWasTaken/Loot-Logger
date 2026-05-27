@@ -122,7 +122,7 @@ public interface LootLoggerConfig extends Config
 		position = 1,
 		keyName = "itemValue",
 		name = "Item Value",
-		description = "Which value to use when calculating item prices"
+		description = "Which value to use when calculating item prices<br>Grand Exchange (Latest): calculate totals using GE price at time of latest drop<br>Grand Exchange (Historic): calculate totals using GE price at the time of each drop"
 	)
-	default ItemValueTypes valueType() {return ItemValueTypes.GRAND_EXCHANGE;}
+	default ItemValueTypes valueType() {return ItemValueTypes.GRAND_EXCHANGE_LATEST;}
 }

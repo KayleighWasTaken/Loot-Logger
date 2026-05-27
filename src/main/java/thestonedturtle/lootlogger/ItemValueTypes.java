@@ -7,7 +7,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum ItemValueTypes
 {
-    GRAND_EXCHANGE("Grand Exchange"),
+    GRAND_EXCHANGE_LATEST("Grand Exchange (Latest)"),
+    GRAND_EXCHANGE_HISTORIC("Grand Exchange (Historic)"),
     HIGH_ALCHEMY("High Alchemy");
 
     private final String name;

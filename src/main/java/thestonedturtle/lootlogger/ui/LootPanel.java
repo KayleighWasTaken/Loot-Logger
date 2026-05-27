@@ -147,18 +147,8 @@ class LootPanel extends JPanel
 		gridBagConstraints.gridy++;
 
 		int killsLogged = lootLog.getRecords().size();
-		if (killsLogged > 0)
-		{
-			killsLoggedPanel.updatePanel(KILLS_LOGGED, killsLogged);
-			killsLoggedPanel.setVisible(true);
-
-			final LTRecord entry = lootLog.getRecords().get(killsLogged - 1);
-			if (entry.getKillCount() != -1)
-			{
-				currentKillcountPanel.updatePanel(CURRENT_KC, entry.getKillCount());
-				currentKillcountPanel.setVisible(true);
-			}
-		}
+		// Get current KC before adding minions
+		final int currentKillcount = killsLogged > 0 ? lootLog.getRecords().get(killsLogged - 1).getKillCount() : -1;
 
 		// Include Main Loot
 		updateMainLootGrid(lootLog);
@@ -186,18 +176,9 @@ class LootPanel extends JPanel
 			}
 		}
 
-		if (totalValue > 0)
-		{
-			updateTotalValuePanel(totalValue);
-			killsLoggedPanel.setToolTipText(QuantityFormatter.formatNumber(totalValue / killsLogged) + " gp per kill");
-		}
+		final boolean isCurrentSessionLog = lootLog.getName().equalsIgnoreCase(LootLoggerPlugin.SESSION_NAME);
 
-		// Change text and include minion kills for session data
-		if (lootLog.getName().equalsIgnoreCase(LootLoggerPlugin.SESSION_NAME))
-		{
-			killsLoggedPanel.updatePanel(TOTAL_KILLS, killsLogged);
-			killsLoggedPanel.setVisible(killsLogged > 0);
-		}
+		updatePanels(totalValue, killsLogged, currentKillcount, isCurrentSessionLog);
 	}
 
 	private LTItemEntry[] getItemsToDisplay(final LootLog log)
@@ -294,23 +275,16 @@ class LootPanel extends JPanel
 		if (!minionUpdate)
 		{
 			updateMainLootGrid(lootLog);
-
-			// Update KillCount
-			if (lootLog.getRecords().size() > 0)
-			{
-				final LTRecord entry = lootLog.getRecords().get(lootLog.getRecords().size() - 1);
-				currentKillcountPanel.updatePanel(CURRENT_KC, entry.getKillCount());
-				currentKillcountPanel.setVisible(entry.getKillCount() != -1);
-			}
 		}
 
-		// Update Total Value
 		final long totalValue = lootLog.getLootValue();
-		updateTotalValuePanel(totalValue);
 
-		// Update Kills Logged
 		int killsLogged = lootLog.getRecords().size();
-		if (lootLog.getName().equalsIgnoreCase(LootLoggerPlugin.SESSION_NAME))
+		// Get current KC before adding minion kills
+		final int currentKillcount = killsLogged > 0 ? lootLog.getRecords().get(killsLogged - 1).getKillCount() : -1;
+		final boolean isCurrentSessionLog = lootLog.getName().equalsIgnoreCase(LootLoggerPlugin.SESSION_NAME);
+
+		if (isCurrentSessionLog)
 		{
 			killsLogged += lootLog.getMinionLogs()
 				.stream()
@@ -318,12 +292,7 @@ class LootPanel extends JPanel
 				.sum();
 		}
 
-		final String killsLoggedText = lootLog.getName().equalsIgnoreCase(LootLoggerPlugin.SESSION_NAME) ? TOTAL_KILLS : KILLS_LOGGED;
-		killsLoggedPanel.updatePanel(killsLoggedText, killsLogged);
-		killsLoggedPanel.setVisible(killsLogged > 0);
-		if (totalValue > 0) {
-			killsLoggedPanel.setToolTipText(QuantityFormatter.formatNumber(totalValue / killsLogged) + " gp per kill");
-		}
+		updatePanels(totalValue, killsLogged, currentKillcount, isCurrentSessionLog);
 	}
 
 	void playback()
@@ -468,6 +437,57 @@ class LootPanel extends JPanel
 		else
 		{
 			totalValuePanel.setVisible(false);
+		}
+	}
+
+	private void updatePanels(long totalValue, int killsLogged, int currentKillcount, boolean isCurrentSessionLog)
+	{
+		if (totalValue > 0)
+		{
+			totalValuePanel.setVisible(true);
+			totalValuePanel.setToolTipText(buildTotalValueTooltip());
+			switch (config.valueType()) {
+				case HIGH_ALCHEMY:
+					totalValuePanel.updatePanel(TOTAL_VALUE_HA, totalValue);
+					break;
+				case GRAND_EXCHANGE_HISTORIC:
+					totalValuePanel.updatePanel(TOTAL_VALUE_HISTORIC, totalValue);
+					break;
+				case GRAND_EXCHANGE_LATEST:
+					totalValuePanel.updatePanel(TOTAL_VALUE_LATEST, totalValue);
+					break;
+				default:
+					totalValuePanel.updatePanel(TOTAL_VALUE, totalValue);
+
+			}
+		}
+		else
+		{
+			totalValuePanel.setVisible(false);
+		}
+
+		if (killsLogged > 0)
+		{
+			final String killsLoggedText = isCurrentSessionLog ? TOTAL_KILLS : KILLS_LOGGED;
+			killsLoggedPanel.updatePanel(killsLoggedText, killsLogged);
+			if (totalValue > 0)
+			{
+				killsLoggedPanel.setToolTipText(QuantityFormatter.formatNumber(totalValue / killsLogged) + " gp per kill");
+			}
+		}
+		else
+		{
+			killsLoggedPanel.setVisible(false);
+		}
+
+		if (currentKillcount != -1)
+		{
+			currentKillcountPanel.setVisible(true);
+			currentKillcountPanel.updatePanel(CURRENT_KC, currentKillcount);
+		}
+		else
+		{
+			currentKillcountPanel.setVisible(false);
 		}
 	}
 

@@ -160,7 +160,7 @@ public class LootLog
 			// Use the most recent price
 			oldEntry.setPrice(item.getPrice());
 			oldEntry.setQuantity(oldEntry.getQuantity() + item.getQuantity());
-			oldEntry.setHistoricTotalPrice(oldEntry.historicTotalPrice + item.getHistoricTotalPrice());
+			oldEntry.setAveragedTotalPrice(oldEntry.averagedTotalPrice + item.getAveragedTotalPrice());
 		}
 		else
 		{

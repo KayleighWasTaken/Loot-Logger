@@ -60,7 +60,7 @@ class LootPanel extends JPanel
 	private static final String KILLS_LOGGED = "Kills Logged:";
 	private static final String TOTAL_VALUE = "Total Value:";
 	private static final String TOTAL_VALUE_LATEST = "Total Value (Latest):";
-	private static final String TOTAL_VALUE_HISTORIC = "Total Value (Historic):";
+	private static final String TOTAL_VALUE_AVERAGED = "Total Value (Averaged):";
 	private static final String TOTAL_VALUE_HA = "Total Value (HA):";
 	private static final String TOTAL_KILLS = "Total Kills:";
 
@@ -423,10 +423,10 @@ class LootPanel extends JPanel
 				case HIGH_ALCHEMY:
 					totalValuePanel.updatePanel(TOTAL_VALUE_HA, totalValue);
 					break;
-				case GRAND_EXCHANGE_HISTORIC:
-					totalValuePanel.updatePanel(TOTAL_VALUE_HISTORIC, totalValue);
+				case GRAND_EXCHANGE_AVERAGED:
+					totalValuePanel.updatePanel(TOTAL_VALUE_AVERAGED, totalValue);
 					break;
-				case GRAND_EXCHANGE_LATEST:
+				case GRAND_EXCHANGE:
 					totalValuePanel.updatePanel(TOTAL_VALUE_LATEST, totalValue);
 					break;
 				default:
@@ -465,12 +465,12 @@ class LootPanel extends JPanel
 	}
 
 	private String buildTotalValueTooltip() {
-		final long latestTotal = lootLog.getLootValue(ItemValueTypes.GRAND_EXCHANGE_LATEST);
-		final long historicTotal = lootLog.getLootValue(ItemValueTypes.GRAND_EXCHANGE_HISTORIC);
+		final long latestTotal = lootLog.getLootValue(ItemValueTypes.GRAND_EXCHANGE);
+		final long averagedTotal = lootLog.getLootValue(ItemValueTypes.GRAND_EXCHANGE_AVERAGED);
 		final long haTotal = lootLog.getLootValue(ItemValueTypes.HIGH_ALCHEMY);
 
 		return "<html>" + "Total (Latest): " + QuantityFormatter.quantityToStackSize(latestTotal)
-			+ "<br/>Total (Historic): " + QuantityFormatter.quantityToStackSize(historicTotal)
+			+ "<br/>Total (Averaged): " + QuantityFormatter.quantityToStackSize(averagedTotal)
 			+ "<br/>Total (HA): " + QuantityFormatter.quantityToStackSize(haTotal) + "</html>";
 	}
 }

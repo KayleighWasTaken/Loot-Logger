@@ -94,12 +94,6 @@ public class LootLog
 		}
 
 		final Collection<UniqueItem> unsorted = UniqueItem.getUniquesForBoss(name);
-		if (unsorted == null)
-		{
-			uniques = new ArrayList<>();
-			return;
-		}
-
 		uniques = unsorted.stream().sorted(Comparator.comparingInt(UniqueItem::getPosition)).collect(Collectors.toList());
 	}
 
@@ -156,7 +150,7 @@ public class LootLog
 						break;
 				}
 
-				item = new LTItemEntry(item.getName(), id, item.getQuantity(), item.getPrice(), item.getHaPrice());
+				item = new LTItemEntry(item.getName(), id, item.getQuantity(), item.getPrice(), item.getHaPrice(), item.getQuantity() * item.getPrice());
 			}
 		}
 
@@ -166,11 +160,12 @@ public class LootLog
 			// Use the most recent price
 			oldEntry.setPrice(item.getPrice());
 			oldEntry.setQuantity(oldEntry.getQuantity() + item.getQuantity());
+			oldEntry.setAveragedTotalPrice(oldEntry.averagedTotalPrice + item.getAveragedTotalPrice());
 		}
 		else
 		{
 			// Create a new instance for consolidated records
-			consolidated.put(item.getId(), new LTItemEntry(item.getName(), item.getId(), item.getQuantity(), item.getPrice(), item.getHaPrice()));
+			consolidated.put(item.getId(), new LTItemEntry(item.getName(), item.getId(), item.getQuantity(), item.getPrice(), item.getHaPrice(), item.getQuantity() * item.getPrice()));
 		}
 	}
 
@@ -188,11 +183,11 @@ public class LootLog
 		return null;
 	}
 
-	public long getLootValue(boolean includeMinions)
+	public long getLootValue(boolean includeMinions, ItemValueTypes valueType)
 	{
 		long value = getConsolidated()
 			.values().stream()
-			.mapToLong(e -> e.getTotalByType(config.valueType()))
+			.mapToLong(e -> e.getTotalByType(valueType))
 			.sum();
 
 		if (includeMinions)
@@ -201,12 +196,27 @@ public class LootLog
 			{
 				value += minionLog.getConsolidated()
 					.values().stream()
-					.mapToLong(e -> e.getTotalByType(config.valueType()))
+					.mapToLong(e -> e.getTotalByType(valueType))
 					.sum();
 			}
 		}
 
 		return value;
+	}
+
+	public long getLootValue(boolean includeMinions)
+	{
+		return getLootValue(includeMinions, config.valueType());
+	}
+
+	public long getLootValue(ItemValueTypes valueType)
+	{
+		return getLootValue(config.includeMinions(), valueType);
+	}
+
+	public long getLootValue()
+	{
+		return getLootValue(config.includeMinions(), config.valueType());
 	}
 
 	// Loop over all UniqueItems and check how many the player has received as a drop for each

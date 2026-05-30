@@ -32,6 +32,7 @@ import javax.swing.SwingConstants;
 import net.runelite.client.game.ItemManager;
 import net.runelite.client.ui.ColorScheme;
 import net.runelite.client.util.QuantityFormatter;
+import thestonedturtle.lootlogger.ItemValueTypes;
 import thestonedturtle.lootlogger.localstorage.LTItemEntry;
 
 /**
@@ -91,12 +92,16 @@ class LootGrid extends JPanel
 	{
 		final String name = item.getName();
 		final int quantity = item.getQuantity();
-		final long price = item.getPrice();
-		final long haPrice = item.getHaPrice();
+		final long latestPrice = item.getPriceByType(ItemValueTypes.GRAND_EXCHANGE);
+		final long haPrice = item.getPriceByType(ItemValueTypes.HIGH_ALCHEMY);
+		final long avgPrice = item.getPriceByType(ItemValueTypes.GRAND_EXCHANGE_AVERAGED);
+		final long averagedTotal = item.getTotalByType(ItemValueTypes.GRAND_EXCHANGE_AVERAGED);
 
 		return "<html>" + name + " x " + QuantityFormatter.formatNumber(quantity)
-			+ "<br/>Price: " + QuantityFormatter.quantityToStackSize(price)
-			+ "<br/>Total: " + QuantityFormatter.quantityToStackSize(quantity * price)
+			+ "<br/>Price (Latest): " + QuantityFormatter.quantityToStackSize(latestPrice)
+			+ "<br/>Total (Latest): " + QuantityFormatter.quantityToStackSize(quantity * latestPrice)
+			+ "<br/>Price (Averaged): " + QuantityFormatter.quantityToStackSize(avgPrice)
+			+ "<br/>Total (Averaged): " + QuantityFormatter.quantityToStackSize(averagedTotal)
 			+ "<br/>Price (HA): " + QuantityFormatter.quantityToStackSize(haPrice)
 			+ "<br/>Total (HA): " + QuantityFormatter.quantityToStackSize(quantity * haPrice) + "</html>";
 	}

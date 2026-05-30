@@ -34,17 +34,27 @@ public class LTItemEntry {
 	public final String name;
 	public final int id;
 	public int quantity;
+	// Price of item at most recent drop
 	public long price;
 	// Rather than serializing HA price and change the output format at all, mark transient and fetch it on deserialisation.
 	public final transient int haPrice;
+	// Transient for record format compatibility due to being cheap to construct at runtime anyway.
+	public transient long averagedTotalPrice;
 
 	public long getPriceByType(ItemValueTypes valueType)
 	{
-		return valueType == ItemValueTypes.GRAND_EXCHANGE ? this.price : (long) this.haPrice;
+		switch (valueType) {
+			case HIGH_ALCHEMY:
+				return haPrice;
+			case GRAND_EXCHANGE_AVERAGED:
+				return averagedTotalPrice / quantity;
+			default:
+				return price;
+		}
 	}
 
 	public long getTotalByType(ItemValueTypes valueType)
 	{
-		return this.quantity * this.getPriceByType(valueType);
+		return valueType == ItemValueTypes.GRAND_EXCHANGE_AVERAGED ? this.averagedTotalPrice : this.quantity * this.getPriceByType(valueType);
 	}
 }

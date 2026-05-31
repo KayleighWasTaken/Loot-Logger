@@ -59,9 +59,6 @@ class LootPanel extends JPanel
 	private static final String CURRENT_KC = "Current Killcount:";
 	private static final String KILLS_LOGGED = "Kills Logged:";
 	private static final String TOTAL_VALUE = "Total Value:";
-	private static final String TOTAL_VALUE_LATEST = "Total Value (Latest):";
-	private static final String TOTAL_VALUE_AVERAGED = "Total Value (Averaged):";
-	private static final String TOTAL_VALUE_HA = "Total Value (HA):";
 	private static final String TOTAL_KILLS = "Total Kills:";
 
 	private final LootLog lootLog;
@@ -419,20 +416,7 @@ class LootPanel extends JPanel
 		{
 			totalValuePanel.setVisible(true);
 			totalValuePanel.setToolTipText(buildTotalValueTooltip());
-			switch (config.valueType()) {
-				case HIGH_ALCHEMY:
-					totalValuePanel.updatePanel(TOTAL_VALUE_HA, totalValue);
-					break;
-				case GRAND_EXCHANGE_AVERAGED:
-					totalValuePanel.updatePanel(TOTAL_VALUE_AVERAGED, totalValue);
-					break;
-				case GRAND_EXCHANGE:
-					totalValuePanel.updatePanel(TOTAL_VALUE_LATEST, totalValue);
-					break;
-				default:
-					totalValuePanel.updatePanel(TOTAL_VALUE, totalValue);
-
-			}
+			totalValuePanel.updatePanel(TOTAL_VALUE, totalValue);
 		}
 		else
 		{

@@ -30,9 +30,6 @@ import java.awt.Dimension;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -60,7 +57,6 @@ public class LootLoggerPanel extends PluginPanel
 	private static final BufferedImage ICON_DELETE;
 	private static final BufferedImage ICON_REFRESH;
 	private static final BufferedImage ICON_BACK;
-	private static final BufferedImage ICON_REPLAY;
 
 	private final static Color BACKGROUND_COLOR = ColorScheme.DARK_GRAY_COLOR;
 	private final static Color BUTTON_HOVER_COLOR = ColorScheme.DARKER_GRAY_HOVER_COLOR;
@@ -70,7 +66,6 @@ public class LootLoggerPanel extends PluginPanel
 		ICON_DELETE = ImageUtil.loadImageResource(LootLoggerPlugin.class, "delete-white.png");
 		ICON_REFRESH = ImageUtil.loadImageResource(LootLoggerPlugin.class, "refresh-white.png");
 		ICON_BACK = ImageUtil.loadImageResource(LootLoggerPlugin.class, "back-arrow-white.png");
-		ICON_REPLAY = ImageUtil.loadImageResource(LootLoggerPlugin.class, "replay-white.png");
 	}
 
 	private final ItemManager itemManager;
@@ -215,21 +210,8 @@ public class LootLoggerPanel extends PluginPanel
 		});
 		clear.setToolTipText("Clear stored data");
 
-		// Clear data button
-		final JLabel replay = createIconLabel(ICON_REPLAY);
-		replay.addMouseListener(new MouseAdapter()
-		{
-			@Override
-			public void mouseClicked(MouseEvent e)
-			{
-				playbackLoot();
-			}
-		});
-		replay.setToolTipText("Replay Loot");
-
 		second.add(refresh);
 		second.add(clear);
-		second.add(replay);
 
 		title.add(first, BorderLayout.WEST);
 		title.add(second, BorderLayout.EAST);
@@ -340,21 +322,6 @@ public class LootLoggerPanel extends PluginPanel
 		else
 		{
 			showLootView();
-		}
-	}
-
-	private void playbackLoot()
-	{
-		if (lootPanel == null)
-		{
-			return;
-		}
-
-		// Create a new thread for this so it doesn't cause swing freezes
-		final ScheduledExecutorService ex = Executors.newSingleThreadScheduledExecutor();
-		if (lootLog != null)
-		{
-			ex.schedule(lootPanel::playback, 0, TimeUnit.SECONDS);
 		}
 	}
 }

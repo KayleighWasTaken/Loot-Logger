@@ -28,14 +28,12 @@ import com.google.common.collect.ImmutableList;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BiConsumer;
 import javax.swing.JPanel;
-import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -64,9 +62,6 @@ class LootPanel extends JPanel
 	private final LootLog lootLog;
 	private final LootLoggerConfig config;
 	private final ItemManager itemManager;
-
-	private boolean playbackPlaying = false;
-	private boolean cancelPlayback = false;
 
 	private final BiConsumer<LootRecordType, String> clearData;
 	private final LootGrid lootGrid = new LootGrid();
@@ -224,10 +219,7 @@ class LootPanel extends JPanel
 	void addedRecord(final LTRecord record)
 	{
 		lootLog.addRecord(record);
-		if (!playbackPlaying)
-		{
-			refreshPanel(lootLog, false);
-		}
+		refreshPanel(lootLog, false);
 	}
 
 	void addMinionRecord(final LTRecord record)
@@ -243,20 +235,14 @@ class LootPanel extends JPanel
 			add(grid, gridBagConstraints);
 			gridBagConstraints.gridy++;
 
-			if (!playbackPlaying)
-			{
-				refreshPanel(lootLog, true);
-			}
+			refreshPanel(lootLog, true);
 			return;
 		}
 
 		minionLog.addRecord(record);
 		updateMinionLog(minionLog);
 
-		if (!playbackPlaying)
-		{
-			refreshPanel(lootLog, true);
-		}
+		refreshPanel(lootLog, true);
 	}
 
 	public void refreshPanel(final LootLog lootLog, final boolean minionUpdate)
@@ -290,80 +276,6 @@ class LootPanel extends JPanel
 		}
 
 		updatePanels(totalValue, killsLogged, currentKillcount, isCurrentSessionLog);
-	}
-
-	void playback()
-	{
-		if (playbackPlaying)
-		{
-			cancelPlayback = true;
-			return;
-		}
-
-		playbackPlaying = true;
-
-		// Grab these outside the loop to avoid any potential performance issues with pulling from config
-		// Downside is changing these config options during a replay will not have any affect.
-		final int playbackLimit = config.playbackUpdateLimit();
-		final int uniquePauseDuration = config.uniquePauseDuration();
-
-		final int configuredSleepDuration = 1000 / playbackLimit;
-		final int actualUniquePauseDuration = Math.max(configuredSleepDuration, uniquePauseDuration);
-
-		if (!lootLog.getRecords().isEmpty())
-		{
-			final int totalKills = lootLog.getRecords().size();
-			final LootLog tempLog = new LootLog(config, new ArrayList<>(), lootLog.getName());
-			for (final LTRecord r : lootLog.getRecords())
-			{
-				tempLog.addRecord(r);
-
-				if (tempLog.getRecords().size() == 1)
-				{
-					SwingUtilities.invokeLater(() -> createPanel(tempLog));
-				}
-				else if (tempLog.getRecords().size() == totalKills)
-				{
-					cancelPlayback = true;
-				}
-				else
-				{
-					SwingUtilities.invokeLater(() -> refreshPanel(tempLog, false));
-				}
-
-				try
-				{
-					if (cancelPlayback)
-					{
-						playbackPlaying = false;
-						cancelPlayback = false;
-						SwingUtilities.invokeLater(() -> createPanel(lootLog));
-						break;
-					}
-
-					int sleepDuration = configuredSleepDuration;
-					if (uniquePauseDuration > 0)
-					{
-						for (LTItemEntry e : r.getDrops())
-						{
-							if (lootLog.getUniqueIds().contains(e.getId()))
-							{
-								// Pause for each unique
-								sleepDuration = actualUniquePauseDuration;
-								break;
-							}
-						}
-					}
-					Thread.sleep(sleepDuration);
-				}
-				catch (InterruptedException e)
-				{
-					log.warn(e.getMessage());
-				}
-			}
-		}
-
-		playbackPlaying = false;
 	}
 
 	/**

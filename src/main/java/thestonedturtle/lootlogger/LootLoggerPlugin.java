@@ -13,7 +13,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
@@ -31,10 +30,6 @@ import net.runelite.api.ItemComposition;
 import net.runelite.api.events.ChatMessage;
 import net.runelite.api.events.GameStateChanged;
 import net.runelite.api.events.GameTick;
-import net.runelite.api.events.WidgetLoaded;
-import net.runelite.api.widgets.ComponentID;
-import net.runelite.api.widgets.InterfaceID;
-import net.runelite.api.widgets.Widget;
 import net.runelite.client.callback.ClientThread;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.config.RuneScapeProfileType;
@@ -68,9 +63,6 @@ import thestonedturtle.lootlogger.ui.LootLoggerPanel;
 )
 public class LootLoggerPlugin extends Plugin
 {
-	private static final String SIRE_FONT_TEXT = "you place the unsired into the font of consumption...";
-	private static final String SIRE_REWARD_TEXT = "the font consumes the unsired";
-	private static final int MAX_TEXT_CHECK = 25;
 	private static final int MAX_PET_TICKS = 5;
 
 	// Kill count handling
@@ -116,8 +108,6 @@ public class LootLoggerPlugin extends Plugin
 	private SetMultimap<LootRecordType, String> lootNames = HashMultimap.create();
 
 	private boolean prepared = false;
-	private boolean unsiredReclaiming = false;
-	private int unsiredCheckCount = 0;
 	// Some pets aren't handled (skilling pets) so reset gotPet after a few ticks
 	private int petTicks = 0;
 	private boolean gotPet = false;
@@ -378,7 +368,7 @@ public class LootLoggerPlugin extends Plugin
 				SwingUtilities.invokeLater(() -> panel.useLog(log));
 				return;
 			}
-			
+
 			final Collection<LTRecord> records = getDataByName(type, name);
 			final LootLog log = new LootLog(config, records, name);
 			if (log.getType().equals(LootRecordType.UNKNOWN))
@@ -421,22 +411,6 @@ public class LootLoggerPlugin extends Plugin
 	}
 
 	@Subscribe
-	public void onWidgetLoaded(WidgetLoaded event)
-	{
-		if (event.getGroupId() != InterfaceID.DIALOG_SPRITE)
-		{
-			return;
-		}
-
-		Widget text = client.getWidget(ComponentID.DIALOG_SPRITE_TEXT);
-		if (text != null && text.getText().toLowerCase().contains(SIRE_FONT_TEXT))
-		{
-			unsiredCheckCount = 0;
-			unsiredReclaiming = true;
-		}
-	}
-
-	@Subscribe
 	public void onGameTick(GameTick t)
 	{
 		if (gotPet)
@@ -451,75 +425,6 @@ public class LootLoggerPlugin extends Plugin
 				petTicks++;
 			}
 		}
-
-		if (unsiredReclaiming)
-		{
-			if (hasUnsiredWidgetUpdated())
-			{
-				unsiredReclaiming = false;
-				return;
-			}
-
-			unsiredCheckCount++;
-			if (unsiredCheckCount >= MAX_TEXT_CHECK)
-			{
-				unsiredReclaiming = false;
-			}
-		}
-	}
-
-	// Handles checking for unsired loot reclamation
-	private boolean hasUnsiredWidgetUpdated()
-	{
-		final Widget text = client.getWidget(ComponentID.DIALOG_SPRITE_TEXT);
-		// Reclaimed an item?
-		if (text != null && text.getText().toLowerCase().contains(SIRE_REWARD_TEXT))
-		{
-			final Widget sprite = client.getWidget(InterfaceID.DIALOG_SPRITE);
-			if (sprite == null || sprite.getItemId() == -1)
-			{
-				return false;
-			}
-
-			log.debug("Unsired was exchanged for item ID: {}", sprite.getItemId());
-			receivedUnsiredLoot(sprite.getItemId());
-			return true;
-		}
-
-		return false;
-	}
-
-	// Handles adding the unsired loot to the tracker
-	private void receivedUnsiredLoot(int itemID)
-	{
-		clientThread.invokeLater(() ->
-		{
-			Collection<LTRecord> data = getDataByName(LootRecordType.NPC, BossTab.ABYSSAL_SIRE.getName());
-			ItemComposition c = itemManager.getItemComposition(itemID);
-			LTItemEntry itemEntry = new LTItemEntry(c.getName(), itemID, 1, 0, c.getHaPrice(), 0);
-
-			log.debug("Received Unsired item: {}", c.getName());
-
-			// Don't have data for sire, create a new record with just this data.
-			if (data == null)
-			{
-				log.debug("No previous Abyssal sire loot, creating new loot record");
-				LTRecord r = new LTRecord(BossTab.ABYSSAL_SIRE.getName(), 350, -1, LootRecordType.NPC, Collections.singletonList(itemEntry), new Date());
-				addRecord(r);
-				return;
-			}
-
-			log.debug("Adding drop to last abyssal sire loot record");
-			// Add data to last kill count
-			final List<LTRecord> items = new ArrayList<>(data);
-			final LTRecord r = items.get(items.size() - 1);
-			r.addDropEntry(itemEntry);
-			writer.writeLootTrackerFile(BossTab.ABYSSAL_SIRE.getName(), items);
-			if (config.enableUI())
-			{
-				SwingUtilities.invokeLater(panel::refreshUI);
-			}
-		});
 	}
 
 	public int convertToInt(String s)
@@ -603,7 +508,7 @@ public class LootLoggerPlugin extends Plugin
 				return;
 			}
 		}
-		
+
 		// Tob KC
 		if (chatMessage.startsWith("Your completed Theatre of Blood count is"))
 		{

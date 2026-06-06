@@ -344,10 +344,7 @@ class LootPanel extends JPanel
 				killsLoggedPanel.setToolTipText(QuantityFormatter.formatNumber(totalValue / killsLogged) + " gp per kill");
 			}
 		}
-		else
-		{
-			killsLoggedPanel.setVisible(false);
-		}
+		killsLoggedPanel.setVisible(killsLogged > 0);
 
 		if (currentKillcount != -1)
 		{
